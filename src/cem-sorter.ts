@@ -1,13 +1,23 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
+import fs from "fs";
+import path from "path";
 import type * as cem from "custom-elements-manifest";
 import { Logger } from "./logger.js";
 
 /**
  * Options for sorting custom elements manifest properties
  */
-export interface SortOptions {
+export type CemSorterOptions = {
+  /** Name of the file generated */
+  fileName?: string;
+  /** Path to output directory */
+  outdir?: string;
   /** Move deprecated APIs to the end of their respective lists */
   deprecatedLast?: boolean;
+  /** Custom fields to sort */
+  customFields?: string[];
+  /** Skip sorting */
+  skip?: boolean;
   /** Enable debug logging */
   debug?: boolean;
 }
@@ -15,9 +25,13 @@ export interface SortOptions {
 /**
  * Default sort options
  */
-const DEFAULT_SORT_OPTIONS: SortOptions = {
+const DEFAULT_SORT_OPTIONS: CemSorterOptions = {
+  fileName: "custom-elements.json",
+  outdir: "./",
   deprecatedLast: false,
+  customFields: [],
   debug: false,
+  skip: false,
 };
 
 /**
@@ -27,15 +41,21 @@ const DEFAULT_SORT_OPTIONS: SortOptions = {
  * @param options - Options for sorting specific properties
  * @returns A new manifest with sorted properties
  */
-export function sortCustomElementsManifest(
+export function sortCem(
   manifest: unknown,
-  options: SortOptions = {}
+  options: CemSorterOptions = {}
 ): cem.Package {
   const mergedOptions = { ...DEFAULT_SORT_OPTIONS, ...options };
   const log = new Logger(mergedOptions.debug);
 
   log.cyan("[cem-sorter] Starting to sort custom elements manifest");
   log.blue(`[cem-sorter] Options: ${JSON.stringify(mergedOptions, null, 2)}`);
+
+  // Check if sorting should be skipped
+  if (mergedOptions.skip) {
+    log.yellow("[cem-sorter] Skipping sorting due to skip option");
+    return JSON.parse(JSON.stringify(manifest)) as cem.Package;
+  }
 
   // Create a deep copy of the manifest to avoid mutating the original
   const sortedManifest = JSON.parse(JSON.stringify(manifest)) as cem.Package;
@@ -48,6 +68,13 @@ export function sortCustomElementsManifest(
   >(
     items: T[]
   ): T[] => {
+    // Normalize names: convert undefined to empty string
+    items.forEach(item => {
+      if (item.name === undefined && typeof item !== "string") {
+        item.name = "";
+      }
+    });
+
     return items.sort((a, b) => {
       const nameA = a.name || "";
       const nameB = b.name || "";
@@ -109,16 +136,6 @@ export function sortCustomElementsManifest(
               `[cem-sorter]       Sorting ${declaration.members.length} members`
             );
 
-            // Sort method parameters
-            declaration.members.forEach((member: any) => {
-              if (member.kind === "method" && member.parameters) {
-                log.cyan(
-                  `[cem-sorter]         Sorting parameters for method: ${member.name}`
-                );
-                member.parameters = sortWithDeprecated(member.parameters);
-              }
-            });
-
             // Sort all members by name with deprecated handling
             declaration.members = sortWithDeprecated(declaration.members);
           }
@@ -132,6 +149,7 @@ export function sortCustomElementsManifest(
             "cssParts",
             "cssStates",
             "dependencies",
+            ...mergedOptions.customFields || [],
           ];
 
           arrayProps.forEach((prop) => {
@@ -150,5 +168,35 @@ export function sortCustomElementsManifest(
   }
 
   log.green("[cem-sorter] Finished sorting custom elements manifest");
+
+  // Save to file if fileName and outdir are provided
+  if (mergedOptions.fileName && mergedOptions.outdir) {
+    createOutDir(mergedOptions.outdir);
+    const outputPath = saveFile(
+      mergedOptions.outdir,
+      mergedOptions.fileName,
+      JSON.stringify(sortedManifest, null, 2)
+    );
+    log.green(`[cem-sorter] Saved sorted manifest to: ${outputPath}`);
+  }
+
   return sortedManifest;
+}
+
+/**
+ * Creates output directory if it doesn't exist
+ */
+function createOutDir(outDir: string) {
+  if (outDir !== "./" && !fs.existsSync(outDir)) {
+    fs.mkdirSync(outDir, { recursive: true });
+  }
+}
+
+/**
+ * Saves content to a file
+ */
+function saveFile(outDir: string, fileName: string, contents: string): string {
+  const outputPath = path.join(outDir, fileName);
+  fs.writeFileSync(outputPath, contents);
+  return outputPath;
 }

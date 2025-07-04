@@ -1,18 +1,18 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import { generateJsxTypes } from "./type-generator";
-import type { JsxTypesOptions } from "./types";
+import { sortCem } from "./cem-sorter";
+import type { CemSorterOptions } from "./cem-sorter";
 
 /**
- * Plugin to generate JSX types for web components based on a custom elements manifest.
+ * Plugin to sort custom elements manifest.
  * 
- * @param options - Configuration options for the JSX types plugin
+ * @param options - Configuration options for the CEM sorter plugin
  * @returns 
  */
-export function jsxTypesPlugin(options: JsxTypesOptions = {}) {
+export function cemSorterPlugin(options: CemSorterOptions = {}) {
   return {
-    name: "@wc-toolkit/jsx-types",
+    name: "@wc-toolkit/cem-sorter",
     packageLinkPhase({ customElementsManifest }: any) {
-      generateJsxTypes(customElementsManifest, options);
+      return sortCem(customElementsManifest, options);
     },
   };
 }

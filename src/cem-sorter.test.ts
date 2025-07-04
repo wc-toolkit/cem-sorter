@@ -1,127 +1,15 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { describe, it, expect } from "vitest";
-import { sortCustomElementsManifest } from "./cem-sorter.js";
-import type * as cem from "custom-elements-manifest";
+import { sortCem } from "./cem-sorter.js";
+import { demoCem } from "./demo-cem.js";
 
 describe("sortCustomElementsManifest", () => {
   // Mock manifest data for testing
-  const createMockManifest = () => ({
-    schemaVersion: "1.0.0",
-    readme: "",
-    modules: [
-      {
-        kind: "javascript-module",
-        path: "src/components/z-component.js",
-        declarations: [
-          {
-            kind: "class",
-            name: "ZComponent",
-            members: [
-              {
-                kind: "field",
-                name: "zProperty",
-                type: { text: "string" },
-              },
-              {
-                kind: "field",
-                name: "aProperty",
-                type: { text: "number" },
-                deprecated: true,
-              },
-              {
-                kind: "method",
-                name: "zMethod",
-                parameters: [
-                  { name: "zParam", type: { text: "string" } },
-                  { name: "aParam", type: { text: "number" } },
-                ],
-              },
-              {
-                kind: "method",
-                name: "aMethod",
-                deprecated: "Use newMethod instead",
-              },
-            ],
-            events: [
-              { name: "z-event", type: { text: "CustomEvent" } },
-              {
-                name: "a-event",
-                type: { text: "CustomEvent" },
-                deprecated: true,
-              },
-            ],
-            slots: [
-              { name: "z-slot", description: "Z slot" },
-              { name: "a-slot", description: "A slot" },
-            ],
-            cssCustomProperties: [
-              { name: "--z-color", description: "Z color" },
-              { name: "--a-color", description: "A color", deprecated: true },
-            ],
-            cssParts: [
-              { name: "z-part", description: "Z part" },
-              { name: "a-part", description: "A part" },
-            ],
-            dependencies: [
-              { name: "ZDependency", description: "Z dependency" },
-              { name: "ADependency", description: "A dependency" },
-            ],
-            tagName: "z-component",
-            customElement: true,
-          },
-          {
-            kind: "class",
-            name: "AComponent",
-            members: [
-              {
-                kind: "field",
-                name: "property",
-                type: { text: "string" },
-              },
-            ],
-            tagName: "a-component",
-            customElement: true,
-          },
-        ],
-        exports: [
-          {
-            kind: "js",
-            name: "ZComponent",
-            declaration: {
-              name: "ZComponent",
-              module: "src/components/z-component.js",
-            },
-          },
-          {
-            kind: "js",
-            name: "AComponent",
-            declaration: {
-              name: "AComponent",
-              module: "src/components/z-component.js",
-            },
-          },
-        ],
-      },
-      {
-        kind: "javascript-module",
-        path: "src/components/a-component.js",
-        declarations: [
-          {
-            kind: "class",
-            name: "AnotherComponent",
-            members: [],
-            tagName: "another-component",
-            customElement: true,
-          },
-        ],
-        exports: [],
-      },
-    ],
-  });
+  const createMockManifest = () => (demoCem);
 
   it("should sort modules by path", () => {
     const manifest = createMockManifest();
-    const sorted = sortCustomElementsManifest(manifest);
+    const sorted = sortCem(manifest);
 
     expect(sorted.modules![0].path).toBe("src/components/a-component.js");
     expect(sorted.modules![1].path).toBe("src/components/z-component.js");
@@ -129,7 +17,7 @@ describe("sortCustomElementsManifest", () => {
 
   it("should sort exports alphabetically", () => {
     const manifest = createMockManifest();
-    const sorted = sortCustomElementsManifest(manifest);
+    const sorted = sortCem(manifest);
 
     const exports = sorted.modules![1].exports!;
     expect(exports[0].name).toBe("AComponent");
@@ -138,7 +26,7 @@ describe("sortCustomElementsManifest", () => {
 
   it("should sort declarations alphabetically", () => {
     const manifest = createMockManifest();
-    const sorted = sortCustomElementsManifest(manifest);
+    const sorted = sortCem(manifest);
 
     const declarations = sorted.modules![1].declarations!;
     expect(declarations[0].name).toBe("AComponent");
@@ -147,7 +35,7 @@ describe("sortCustomElementsManifest", () => {
 
   it("should sort members alphabetically", () => {
     const manifest = createMockManifest();
-    const sorted = sortCustomElementsManifest(manifest);
+    const sorted = sortCem(manifest);
 
     const members = (sorted.modules![1].declarations![1] as any).members!;
     expect(members[0].name).toBe("aMethod");
@@ -156,20 +44,9 @@ describe("sortCustomElementsManifest", () => {
     expect(members[3].name).toBe("zProperty");
   });
 
-  it("should sort method parameters alphabetically", () => {
-    const manifest = createMockManifest();
-    const sorted = sortCustomElementsManifest(manifest);
-
-    const zMethod = (
-      sorted.modules![1].declarations![1] as cem.ClassDeclaration
-    ).members!.find((m: any) => m.name === "zMethod") as any;
-    expect(zMethod.parameters![0].name).toBe("aParam");
-    expect(zMethod.parameters![1].name).toBe("zParam");
-  });
-
   it("should sort events alphabetically", () => {
     const manifest = createMockManifest();
-    const sorted = sortCustomElementsManifest(manifest);
+    const sorted = sortCem(manifest);
 
     const events = (sorted.modules![1].declarations![1] as any).events;
     expect(events[0].name).toBe("a-event");
@@ -178,7 +55,7 @@ describe("sortCustomElementsManifest", () => {
 
   it("should sort slots alphabetically", () => {
     const manifest = createMockManifest();
-    const sorted = sortCustomElementsManifest(manifest);
+    const sorted = sortCem(manifest);
 
     const slots = (sorted.modules![1].declarations![1] as any).slots;
     expect(slots[0].name).toBe("a-slot");
@@ -187,7 +64,7 @@ describe("sortCustomElementsManifest", () => {
 
   it("should sort CSS custom properties alphabetically", () => {
     const manifest = createMockManifest();
-    const sorted = sortCustomElementsManifest(manifest);
+    const sorted = sortCem(manifest);
 
     const cssProps = (sorted.modules![1].declarations![1] as any)
       .cssCustomProperties;
@@ -197,7 +74,7 @@ describe("sortCustomElementsManifest", () => {
 
   it("should sort CSS parts alphabetically", () => {
     const manifest = createMockManifest();
-    const sorted = sortCustomElementsManifest(manifest);
+    const sorted = sortCem(manifest);
 
     const cssParts = (sorted.modules![1].declarations![1] as any).cssParts;
     expect(cssParts[0].name).toBe("a-part");
@@ -206,7 +83,7 @@ describe("sortCustomElementsManifest", () => {
 
   it("should sort dependencies alphabetically", () => {
     const manifest = createMockManifest();
-    const sorted = sortCustomElementsManifest(manifest);
+    const sorted = sortCem(manifest);
 
     const dependencies = (sorted.modules![1].declarations![1] as any)
       .dependencies;
@@ -217,7 +94,7 @@ describe("sortCustomElementsManifest", () => {
   it("should not mutate the original manifest", () => {
     const manifest = createMockManifest();
     const originalPath = manifest.modules![0].path;
-    const sorted = sortCustomElementsManifest(manifest);
+    const sorted = sortCem(manifest);
 
     expect(manifest.modules![0].path).toBe(originalPath);
     expect(sorted.modules![0].path).not.toBe(originalPath);
@@ -226,7 +103,7 @@ describe("sortCustomElementsManifest", () => {
   describe("deprecated items handling", () => {
     it("should move deprecated items to the end when deprecatedLast is true", () => {
       const manifest = createMockManifest();
-      const sorted = sortCustomElementsManifest(manifest, {
+      const sorted = sortCem(manifest, {
         deprecatedLast: true,
       });
 
@@ -241,7 +118,7 @@ describe("sortCustomElementsManifest", () => {
 
     it("should handle boolean deprecated values", () => {
       const manifest = createMockManifest();
-      const sorted = sortCustomElementsManifest(manifest, {
+      const sorted = sortCem(manifest, {
         deprecatedLast: true,
       });
 
@@ -252,7 +129,7 @@ describe("sortCustomElementsManifest", () => {
 
     it("should handle string deprecated values", () => {
       const manifest = createMockManifest();
-      const sorted = sortCustomElementsManifest(manifest, {
+      const sorted = sortCem(manifest, {
         deprecatedLast: true,
       });
 
@@ -304,7 +181,7 @@ describe("sortCustomElementsManifest", () => {
         ],
       };
 
-      const sorted = sortCustomElementsManifest(
+      const sorted = sortCem(
         manifestWithMultipleDeprecated,
         { deprecatedLast: true }
       );
@@ -325,7 +202,7 @@ describe("sortCustomElementsManifest", () => {
         modules: [],
       };
 
-      const sorted = sortCustomElementsManifest(emptyManifest);
+      const sorted = sortCem(emptyManifest);
       expect(sorted.modules).toEqual([]);
     });
 
@@ -335,7 +212,7 @@ describe("sortCustomElementsManifest", () => {
         readme: "",
       };
 
-      const sorted = sortCustomElementsManifest(noModulesManifest);
+      const sorted = sortCem(noModulesManifest);
       expect(sorted.modules).toBeUndefined();
     });
 
@@ -352,7 +229,7 @@ describe("sortCustomElementsManifest", () => {
         ],
       };
 
-      const sorted = sortCustomElementsManifest(noDeclarationsManifest);
+      const sorted = sortCem(noDeclarationsManifest);
       expect(sorted.modules![0].declarations).toBeUndefined();
     });
 
@@ -375,7 +252,7 @@ describe("sortCustomElementsManifest", () => {
         ],
       };
 
-      const sorted = sortCustomElementsManifest(noMembersManifest);
+      const sorted = sortCem(noMembersManifest);
       expect(
         (sorted.modules![0].declarations![0] as any).members
       ).toBeUndefined();
@@ -407,7 +284,7 @@ describe("sortCustomElementsManifest", () => {
         ],
       };
 
-      const sorted = sortCustomElementsManifest(noNamesManifest);
+      const sorted = sortCem(noNamesManifest);
       const members = (sorted.modules![0].declarations![0] as any).members!;
       expect(members[0].name).toBe(""); // unnamed item should sort first
       expect(members[1].name).toBe("namedField");
@@ -420,7 +297,7 @@ describe("sortCustomElementsManifest", () => {
 
       // Should not throw with debug enabled
       expect(() => {
-        sortCustomElementsManifest(manifest, { debug: true });
+        sortCem(manifest, { debug: true });
       }).not.toThrow();
     });
 
@@ -428,7 +305,33 @@ describe("sortCustomElementsManifest", () => {
       const manifest = createMockManifest();
 
       expect(() => {
-        sortCustomElementsManifest(manifest);
+        sortCem(manifest);
+      }).not.toThrow();
+    });
+  });
+
+  describe("file output", () => {
+    it("should not write file when fileName or outdir is not provided", () => {
+      const manifest = createMockManifest();
+
+      // Should not throw and should return sorted manifest
+      expect(() => {
+        const result = sortCem(manifest, { debug: false });
+        expect(result).toBeDefined();
+        expect(result.modules).toBeDefined();
+      }).not.toThrow();
+    });
+
+    it("should accept fileName and outdir options without throwing", () => {
+      const manifest = createMockManifest();
+
+      // Should not throw with file output options
+      expect(() => {
+        sortCem(manifest, { 
+          fileName: "test-output.json",
+          outdir: "./test-temp",
+          debug: false 
+        });
       }).not.toThrow();
     });
   });

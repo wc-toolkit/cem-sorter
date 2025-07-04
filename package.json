@@ -24,7 +24,7 @@
     "build": "tsup src/index.ts --dts --format cjs,esm",
     "clean": "git clean -fdX",
     "deploy": "npm run build && npm publish",
-    "demo": "npm run build && node ./demo/generate-types.js",
+    "demo": "npm run build && node ./demo/sort-cem.js",
     "format": "prettier . --write",
     "lint": "eslint 'src/**/*.ts'",
     "lint:fix": "eslint 'src/**/*.ts' --fix",

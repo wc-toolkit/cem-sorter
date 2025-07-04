@@ -4,110 +4,181 @@
 
 </div>
 
-# WC Toolkit Custom Element JSX Types Generator
+# WC Toolkit CEM Sorter
 
-This package is designed to generate [JSX](https://www.typescriptlang.org/docs/handbook/jsx.html) types for your custom elements. These types will generate inline documentation, autocomplete, and type-safe validation for your custom elements in frameworks that use JSX like [React (19+)](https://react.dev/), [Preact](https://preactjs.com/) and [StencilJS](https://stenciljs.com/).
+A utility for sorting Custom Elements Manifest (CEM) files alphabetically. This package helps maintain consistent and organized custom elements manifests by sorting modules, declarations, members, attributes, events, and other properties in alphabetical order.
 
-![demo of autocomplete features for custom elements in a jsx project](https://github.com/break-stuff/cem-tools/blob/main/demo/images/solid-js-integration/solid-js-integration.gif?raw=true)
+## Features
 
-This allows developers to use your custom elements in their JSX projects with full type support, making it easier to integrate and use your components.
+- **Alphabetical Sorting**: Sorts all manifest properties alphabetically for better organization
+- **Module Organization**: Sorts modules by file path
+- **Declaration Sorting**: Organizes component declarations and exports
+- **Member Sorting**: Sorts attributes, properties, methods, events, slots, CSS properties, and more
+- **Optional Deprecated Field Sorting**: Option to move deprecated APIs to the end of lists
+- **Custom Fields**: Support for sorting custom fields
+- **Debug Logging**: Optional debug output for troubleshooting
 
-> **_NOTE:_** If you are using react 18 or below, check out our [react wrappers](https://www.npmjs.com/package/custom-element-react-wrappers).
+## Installation
 
-Types will be generated for all custom elements defined in your [Custom Elements Manifest](https://custom-elements-manifest.open-wc.org/). 
-
-This includes types and documentation for:
-
-- Custom elements (types and docs)
-- Attributes (types and docs)
-- Properties (types and docs)
-- Events (types and docs)
-- Methods (types and docs)
-- Slots (docs)
-- CSS Custom Properties (docs)
-- CSS Props (docs)
-- CSS States (docs)
+```bash
+npm i -D @wc-toolkit/cem-sorter
+```
 
 ## Usage
 
-This package includes two ways to generate the custom data config file:
+### Standalone Function
 
-1. calling a function in your build pipeline
-2. as a plugin for the [Custom Element Manifest Analyzer](https://custom-elements-manifest.open-wc.org/)
+```javascript
+import { sortCem } from "@wc-toolkit/cem-sorter";
+import manifest from "./custom-elements.json" with { type: "json" };
 
-### Install
+// Basic usage
+const sortedManifest = sortCem(manifest);
 
-```bash
-npm i -D @wc-toolkit/jsx-types
+// With options
+const sortedManifest = sortCem(manifest, {
+  fileName: "sorted-custom-elements.json",
+  outdir: "./dist",
+  deprecatedLast: true,
+  debug: true,
+});
 ```
 
-### Build Pipeline
+### As a Custom Elements Analyzer Plugin
 
-```ts
-import { generateJsxTypes, JsxTypesOptions } from "@wc-toolkit/jsx-types";
-import manifest from "./path/to/custom-elements.json";
-
-const options: JsxTypesOptions = {...};
-
-generateJsxTypes(manifest, options);
-```
-
-### CEM Analyzer
-
-#### Set-up
-
-Ensure the following steps have been taken in your component library prior to using this plugin:
-
-- Install and set up the [Custom Elements Manifest Analyzer](https://custom-elements-manifest.open-wc.org/analyzer/getting-started/)
-- Create a [config file](https://custom-elements-manifest.open-wc.org/analyzer/config/#config-file)
-
-#### Import
-
-```js
+```javascript
 // custom-elements-manifest.config.js
-
-import { jsxTypesPlugin } from "@wc-toolkit/jsx-types";
-
-const options = {...};
+import { cemSorterPlugin } from "@wc-toolkit/cem-sorter";
 
 export default {
+  globs: ["src/**/*.js"],
+  outdir: "./dist",
   plugins: [
-    jsxTypesPlugin(options)
+    cemSorterPlugin({
+      deprecatedLast: true,
+      customFields: ["customProperty"],
+    }),
   ],
 };
 ```
 
-## Implementation
+## Configuration Options
 
-In order for teams to take advantage of this, all they need to do is import the types in their project. There are two ways to configure the JSX types:
+| Option           | Type       | Default                  | Description                                               |
+| ---------------- | ---------- | ------------------------ | --------------------------------------------------------- |
+| `fileName`       | `string`   | `"custom-elements.json"` | Name of the output file                                   |
+| `outdir`         | `string`   | `"./"`                   | Path to output directory                                  |
+| `deprecatedLast` | `boolean`  | `false`                  | Move deprecated APIs to the end of their respective lists |
+| `customFields`   | `string[]` | `[]`                     | Additional custom fields to sort                          |
+| `skip`           | `boolean`  | `false`                  | Skip sorting entirely                                     |
+| `debug`          | `boolean`  | `false`                  | Enable debug logging                                      |
 
-### Option 1: TSConfig Configuration
+## What Gets Sorted
 
-Add the types to your `tsconfig.json`:
+The sorter organizes the following elements in your Custom Elements Manifest:
+
+### Top Level
+
+- **Modules**: Sorted by file path
+- **Exports**: Sorted alphabetically by name
+- **Declarations**: Sorted alphabetically by name
+
+### Within Declarations
+
+- **Members**: All members (properties, methods, attributes, etc.)
+- **Attributes**: Component attributes
+- **Events**: Custom events
+- **Slots**: Available slots
+- **CSS Custom Properties**: CSS custom properties/variables
+- **CSS Parts**: CSS shadow parts
+- **CSS States**: CSS custom states
+- **Dependencies**: Component dependencies
+- **Custom Fields**: Any additional fields specified in options
+
+## Examples
+
+### Before Sorting
 
 ```json
 {
-  "compilerOptions": {
-    "types": ["path/to/jsx-types"]
-  }
+  "modules": [
+    {
+      "path": "src/components/z-component.js",
+      "declarations": [
+        {
+          "name": "ZComponent",
+          "members": [
+            { "name": "zProperty" },
+            { "name": "aProperty" },
+            { "name": "mMethod" }
+          ]
+        }
+      ]
+    },
+    {
+      "path": "src/components/a-component.js"
+    }
+  ]
 }
 ```
 
-### Option 2: TypeScript Declaration File
+### After Sorting
 
-Create a declaration file and extend JSX's `IntrinsicElements`:
-
-```ts
-// custom-elements-types.d.ts
-import type { CustomElements } from "path/to/jsx-types";
-
-declare module "my-app" {
-  namespace JSX {
-    interface IntrinsicElements extends CustomElements {}
-  }
+```json
+{
+  "modules": [
+    {
+      "path": "src/components/a-component.js"
+    },
+    {
+      "path": "src/components/z-component.js",
+      "declarations": [
+        {
+          "name": "ZComponent",
+          "members": [
+            { "name": "aProperty" },
+            { "name": "mMethod" },
+            { "name": "zProperty" }
+          ]
+        }
+      ]
+    }
+  ]
 }
 ```
 
-> **_NOTE:_** Libraries will often have their own module names you will need to use when extending the `IntrinsicElements` interface. For example, Preact requires you to use the `"preact"` module name instead of `"my-app"` (`declare module "preact"`) and StencilJS uses "@stencil/core" (`declare module "@stencil/core"`).
+### Handling Deprecated Items
 
-For more detailed information on how to configure and manage these types, be sure to check out the [official docs](https://wc-toolkit.com/integrations/jsx).
+When `deprecatedLast: true` is set, deprecated items are moved to the end while maintaining alphabetical order within each group:
+
+```javascript
+const sortedManifest = sortCem(manifest, {
+  deprecatedLast: true,
+});
+```
+
+**Result**: Non-deprecated items first (alphabetically), then deprecated items (alphabetically).
+
+## Performance
+
+The sorter is designed to be fast and efficient. For reference, sorting a large manifest (100+ components) typically takes around 10 milliseconds.
+
+## TypeScript Support
+
+This package is written in TypeScript and includes full type definitions. All functions and options are properly typed for the best development experience.
+
+```typescript
+import { sortCem, CemSorterOptions } from "@wc-toolkit/cem-sorter";
+import type * as cem from "custom-elements-manifest";
+
+const options: CemSorterOptions = {
+  deprecatedLast: true,
+  debug: false,
+};
+
+const sortedManifest: cem.Package = sortCem(manifest, options);
+```
+
+## Contributing
+
+We welcome contributions! Please see our [Contributing Guide](CONTRIBUTING.md) for details.
