@@ -1,0 +1,161 @@
+{
+  "schemaVersion": "1.0.0",
+  "readme": "",
+  "modules": [
+    {
+      "kind": "javascript-module",
+      "path": "src/components/a-component.js",
+      "declarations": [
+        {
+          "kind": "class",
+          "name": "AnotherComponent",
+          "members": [],
+          "tagName": "another-component",
+          "customElement": true
+        }
+      ],
+      "exports": []
+    },
+    {
+      "kind": "javascript-module",
+      "path": "src/components/z-component.js",
+      "declarations": [
+        {
+          "kind": "class",
+          "name": "AComponent",
+          "members": [
+            {
+              "kind": "field",
+              "name": "property",
+              "type": {
+                "text": "string"
+              }
+            }
+          ],
+          "tagName": "a-component",
+          "customElement": true
+        },
+        {
+          "kind": "class",
+          "name": "ZComponent",
+          "members": [
+            {
+              "kind": "method",
+              "name": "aMethod",
+              "deprecated": "Use newMethod instead"
+            },
+            {
+              "kind": "field",
+              "name": "aProperty",
+              "type": {
+                "text": "number"
+              },
+              "deprecated": true
+            },
+            {
+              "kind": "method",
+              "name": "zMethod",
+              "parameters": [
+                {
+                  "name": "zParam",
+                  "type": {
+                    "text": "string"
+                  }
+                },
+                {
+                  "name": "aParam",
+                  "type": {
+                    "text": "number"
+                  }
+                }
+              ]
+            },
+            {
+              "kind": "field",
+              "name": "zProperty",
+              "type": {
+                "text": "string"
+              }
+            }
+          ],
+          "events": [
+            {
+              "name": "a-event",
+              "type": {
+                "text": "CustomEvent"
+              },
+              "deprecated": true
+            },
+            {
+              "name": "z-event",
+              "type": {
+                "text": "CustomEvent"
+              }
+            }
+          ],
+          "slots": [
+            {
+              "name": "a-slot",
+              "description": "A slot"
+            },
+            {
+              "name": "z-slot",
+              "description": "Z slot"
+            }
+          ],
+          "cssCustomProperties": [
+            {
+              "name": "--a-color",
+              "description": "A color",
+              "deprecated": true
+            },
+            {
+              "name": "--z-color",
+              "description": "Z color"
+            }
+          ],
+          "cssParts": [
+            {
+              "name": "a-part",
+              "description": "A part"
+            },
+            {
+              "name": "z-part",
+              "description": "Z part"
+            }
+          ],
+          "dependencies": [
+            {
+              "name": "ADependency",
+              "description": "A dependency"
+            },
+            {
+              "name": "ZDependency",
+              "description": "Z dependency"
+            }
+          ],
+          "tagName": "z-component",
+          "customElement": true
+        }
+      ],
+      "exports": [
+        {
+          "kind": "js",
+          "name": "AComponent",
+          "declaration": {
+            "name": "AComponent",
+            "module": "src/components/z-component.js"
+          }
+        },
+        {
+          "kind": "js",
+          "name": "ZComponent",
+          "declaration": {
+            "name": "ZComponent",
+            "module": "src/components/z-component.js"
+          }
+        }
+      ]
+    }
+  ]
+}
