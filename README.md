@@ -1,12 +1,12 @@
 <div align="center">
   
-![workbench with tools, html, css, javascript, and jsx logos](https://raw.githubusercontent.com/wc-toolkit/jsx-types/refs/heads/main/assets/wc-toolkit_jsx.png)
+![workbench with tools, html, css, javascript, and sorting logos](https://raw.githubusercontent.com/wc-toolkit/cem-sorter/refs/heads/main/assets/wc-toolkit_cem-sorter.png)
 
 </div>
 
 # WC Toolkit CEM Sorter
 
-A utility for sorting Custom Elements Manifest (CEM) files alphabetically. This package helps maintain consistent and organized custom elements manifests by sorting modules, declarations, members, attributes, events, and other properties in alphabetical order.
+A utility for sorting Custom Elements Manifest (CEM) data alphabetically. This package helps maintain consistent and organized custom elements manifests by sorting modules, declarations, members, attributes, events, and other properties in alphabetical order.
 
 ## Features
 
@@ -79,21 +79,20 @@ The sorter organizes the following elements in your Custom Elements Manifest:
 
 ### Top Level
 
-- **Modules**: Sorted by file path
-- **Exports**: Sorted alphabetically by name
-- **Declarations**: Sorted alphabetically by name
+- Modules: Sorted by file path
+- Exports: Sorted alphabetically by name
+- Declarations: Sorted alphabetically by name
 
 ### Within Declarations
 
-- **Members**: All members (properties, methods, attributes, etc.)
-- **Attributes**: Component attributes
-- **Events**: Custom events
-- **Slots**: Available slots
-- **CSS Custom Properties**: CSS custom properties/variables
-- **CSS Parts**: CSS shadow parts
-- **CSS States**: CSS custom states
-- **Dependencies**: Component dependencies
-- **Custom Fields**: Any additional fields specified in options
+- Members: All members (properties, methods, etc.)
+- Attributes: Component attributes
+- Events: Custom events
+- Slots: Available slots
+- CSS Custom Properties: CSS custom properties/variables
+- CSS Parts: CSS shadow parts
+- CSS States: CSS custom states
+- Custom Fields: Any additional fields specified in options
 
 ## Examples
 
@@ -177,6 +176,19 @@ const options: CemSorterOptions = {
 };
 
 const sortedManifest: cem.Package = sortCem(manifest, options);
+```
+
+## Preventing Output
+
+The `sortCem` function allows you to control the output behavior. By default it returns a sorted manifest object. If you want to control when and how your new sorted CEM is written to disk, you can set the `outdir` or `fileName` to `null` or `undefined`:
+
+```js
+const sortedManifest = sortCem(manifest, {
+  outdir: null, // Prevents writing to disk
+  fileName: null, // Prevents writing to a specific file
+});
+
+// You can still use the `sortedManifest` object in your application
 ```
 
 ## Contributing
