@@ -64,14 +64,25 @@ export default {
 
 ## Configuration Options
 
-| Option           | Type       | Default                  | Description                                               |
-| ---------------- | ---------- | ------------------------ | --------------------------------------------------------- |
-| `fileName`       | `string`   | `"custom-elements.json"` | Name of the output file                                   |
-| `outdir`         | `string`   | `"./"`                   | Path to output directory                                  |
-| `deprecatedLast` | `boolean`  | `false`                  | Move deprecated APIs to the end of their respective lists |
-| `customFields`   | `string[]` | `[]`                     | Additional custom fields to sort                          |
-| `skip`           | `boolean`  | `false`                  | Skip sorting entirely                                     |
-| `debug`          | `boolean`  | `false`                  | Enable debug logging                                      |
+```ts
+/**
+ * Options for sorting custom elements manifest properties
+ */
+export type CemSorterOptions = {
+  /** Name of the file generated - default is `custom-elements.json` */
+  fileName?: string | null;
+  /** Path to output directory - default is `./` */
+  outdir?: string | null;
+  /** Move deprecated APIs to the end of their respective lists */
+  deprecatedLast?: boolean;
+  /** Custom fields to sort */
+  customFields?: string[];
+  /** Skip sorting */
+  skip?: boolean;
+  /** Enable debug logging */
+  debug?: boolean;
+}
+```
 
 ## What Gets Sorted
 
