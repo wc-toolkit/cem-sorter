@@ -44,7 +44,11 @@ const sortedManifest = sortCem(manifest, {
 });
 ```
 
-### As a Custom Elements Analyzer Plugin
+Give it a try in the browser:
+
+[![Open in StackBlitz](https://developer.stackblitz.com/img/open_in_stackblitz.svg)](https://stackblitz.com/edit/stackblitz-starters-nzezjud8?file=index.js)
+
+### As a Custom Elements Manifest Analyzer Plugin
 
 ```javascript
 // custom-elements-manifest.config.js
