@@ -9,7 +9,6 @@ import type { CemSorterOptions } from "./cem-sorter";
  * @returns 
  */
 export function cemSorterPlugin(options: CemSorterOptions = {}) {
-  options.fileName = null;
   return {
     name: "@wc-toolkit/cem-sorter",
     packageLinkPhase({ customElementsManifest }: any) {
