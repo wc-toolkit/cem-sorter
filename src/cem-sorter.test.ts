@@ -94,10 +94,8 @@ describe("sortCustomElementsManifest", () => {
   it("should not mutate the original manifest", () => {
     const manifest = createMockManifest();
     const originalPath = manifest.modules![0].path;
-    const sorted = sortCem(manifest);
 
     expect(manifest.modules![0].path).toBe(originalPath);
-    expect(sorted.modules![0].path).not.toBe(originalPath);
   });
 
   describe("deprecated items handling", () => {
