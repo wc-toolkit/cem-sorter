@@ -47,6 +47,7 @@ export function sortCem(
 ): cem.Package {
   const mergedOptions = { ...DEFAULT_SORT_OPTIONS, ...options };
   const log = new Logger(mergedOptions.debug);
+  const typedManifest = manifest as cem.Package;
 
   log.cyan("[cem-sorter] Starting to sort custom elements manifest");
   log.blue(`[cem-sorter] Options: ${JSON.stringify(mergedOptions, null, 2)}`);
@@ -54,11 +55,8 @@ export function sortCem(
   // Check if sorting should be skipped
   if (mergedOptions.skip) {
     log.yellow("[cem-sorter] Skipping sorting due to skip option");
-    return JSON.parse(JSON.stringify(manifest)) as cem.Package;
+    return typedManifest;
   }
-
-  // Create a deep copy of the manifest to avoid mutating the original
-  const sortedManifest = JSON.parse(JSON.stringify(manifest)) as cem.Package;
 
   /**
    * Helper function to sort arrays with optional deprecated item handling
@@ -94,17 +92,17 @@ export function sortCem(
   };
 
   // Sort modules
-  if (sortedManifest.modules) {
-    log.blue(`[cem-sorter] Sorting ${sortedManifest.modules.length} modules`);
+  if (typedManifest.modules) {
+    log.blue(`[cem-sorter] Sorting ${typedManifest.modules.length} modules`);
 
-    sortedManifest.modules = sortedManifest.modules.sort((a: any, b: any) => {
+    typedManifest.modules = typedManifest.modules.sort((a: any, b: any) => {
       const pathA = a.path || "";
       const pathB = b.path || "";
       return pathA.localeCompare(pathB);
     });
 
     // Process each module
-    sortedManifest.modules.forEach((module: any, moduleIndex: number) => {
+    typedManifest.modules.forEach((module: any, moduleIndex: number) => {
       log.blue(
         `[cem-sorter] Processing module ${moduleIndex + 1}: ${module.path || "unnamed"}`
       );
@@ -175,12 +173,12 @@ export function sortCem(
     const outputPath = saveFile(
       mergedOptions.outdir,
       mergedOptions.fileName,
-      JSON.stringify(sortedManifest, null, 2)
+      JSON.stringify(typedManifest, null, 2)
     );
     log.green(`[cem-sorter] Saved sorted manifest to: ${outputPath}`);
   }
 
-  return sortedManifest;
+  return typedManifest;
 }
 
 /**
