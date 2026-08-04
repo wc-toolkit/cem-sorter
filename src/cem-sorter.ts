@@ -1,6 +1,7 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import fs from "fs";
 import path from "path";
+import { DEFAULT_SORT_OPTIONS } from "./default-options.js";
 import type * as cem from "custom-elements-manifest";
 import { Logger } from "./logger.js";
 
@@ -20,18 +21,6 @@ export type CemSorterOptions = {
   skip?: boolean;
   /** Enable debug logging */
   debug?: boolean;
-}
-
-/**
- * Default sort options
- */
-const DEFAULT_SORT_OPTIONS: CemSorterOptions = {
-  fileName: "custom-elements.json",
-  outdir: "./",
-  deprecatedLast: false,
-  customFields: [],
-  debug: false,
-  skip: false,
 };
 
 /**
@@ -43,7 +32,7 @@ const DEFAULT_SORT_OPTIONS: CemSorterOptions = {
  */
 export function sortCem(
   manifest: unknown,
-  options: CemSorterOptions = {}
+  options: CemSorterOptions = {},
 ): cem.Package {
   const mergedOptions = { ...DEFAULT_SORT_OPTIONS, ...options };
   const log = new Logger(mergedOptions.debug);
@@ -64,10 +53,10 @@ export function sortCem(
   const sortWithDeprecated = <
     T extends { name?: string; deprecated?: boolean | string },
   >(
-    items: T[]
+    items: T[],
   ): T[] => {
     // Normalize names: convert undefined to empty string
-    items.forEach(item => {
+    items.forEach((item) => {
       if (item.name === undefined && typeof item !== "string") {
         item.name = "";
       }
@@ -104,7 +93,7 @@ export function sortCem(
     // Process each module
     typedManifest.modules.forEach((module: any, moduleIndex: number) => {
       log.blue(
-        `[cem-sorter] Processing module ${moduleIndex + 1}: ${module.path || "unnamed"}`
+        `[cem-sorter] Processing module ${moduleIndex + 1}: ${module.path || "unnamed"}`,
       );
 
       // Sort exports
@@ -116,7 +105,7 @@ export function sortCem(
       // Sort declarations
       if (module.declarations) {
         log.yellow(
-          `[cem-sorter]   Sorting ${module.declarations.length} declarations`
+          `[cem-sorter]   Sorting ${module.declarations.length} declarations`,
         );
         module.declarations = sortWithDeprecated(module.declarations);
       }
@@ -125,13 +114,13 @@ export function sortCem(
       if (module.declarations) {
         module.declarations.forEach((declaration: any) => {
           log.green(
-            `[cem-sorter]     Processing declaration: ${declaration.name || "unnamed"} (${declaration.kind || "unknown"})`
+            `[cem-sorter]     Processing declaration: ${declaration.name || "unnamed"} (${declaration.kind || "unknown"})`,
           );
 
           // Sort members (attributes, properties, methods, events, etc.)
           if (declaration.members) {
             log.magenta(
-              `[cem-sorter]       Sorting ${declaration.members.length} members`
+              `[cem-sorter]       Sorting ${declaration.members.length} members`,
             );
 
             // Sort all members by name with deprecated handling
@@ -147,7 +136,7 @@ export function sortCem(
             "cssParts",
             "cssStates",
             "dependencies",
-            ...mergedOptions.customFields || [],
+            ...(mergedOptions.customFields || []),
           ];
 
           arrayProps.forEach((prop) => {
@@ -173,7 +162,7 @@ export function sortCem(
     const outputPath = saveFile(
       mergedOptions.outdir,
       mergedOptions.fileName,
-      JSON.stringify(typedManifest, null, 2)
+      JSON.stringify(typedManifest, null, 2),
     );
     log.green(`[cem-sorter] Saved sorted manifest to: ${outputPath}`);
   }
